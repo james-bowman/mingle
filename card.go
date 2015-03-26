@@ -12,7 +12,7 @@ type CardType struct {
 type Card struct {
 	XMLName  xml.Name	`xml:"card"`
 	Name string `xml:"name"`
-//	Description string `xml:"description"`
+	Description string `xml:"description"`
 	Type CardType `xml:"card_type"`
 	Id string `xml:"id"`
 	Number string `xml:"number"`
