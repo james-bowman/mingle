@@ -9,6 +9,16 @@ type CardType struct {
 	Name string `xml:"name"`
 }
 
+type User struct {
+	Name string `xml:"name"`
+	Login string `xml:"login"`
+}
+
+type Property struct {
+	Name string `xml:"name"`
+	Value string `xml:"value"`
+}
+
 type Card struct {
 	XMLName  xml.Name	`xml:"card"`
 	Name string `xml:"name"`
@@ -17,6 +27,14 @@ type Card struct {
 	Id string `xml:"id"`
 	Number string `xml:"number"`
 	Vesion int `xml:"version"`
+	ProjectCardRank int `xml:"project_card_rank"`
+	CreatedOn string `xml:"created_on"`
+	ModifiedOn string `xml:"modified_on"`
+	ModifiedBy User `xml:"modified_by"`
+	CreatedBy User `xml:"created_by"`
+	Properties []Property `xml:"properties"`
+	Tags string `xml:"tags"`
+}
 	
 	/* name: String.
 description: String; the HTML that Mingle renders for the card description.
