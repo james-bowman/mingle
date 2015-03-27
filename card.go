@@ -51,4 +51,4 @@ created_by: Resource; name and login id of user who created the card; both Strin
 properties: Array; property: Resource; name and a current value for each card property defined for current card's card type are listed; Data type will depend on the property while property name is always String. The property also includes attributes about the property type_description and whether or not it is hidden.
 tags: String; read only, comma-delimited list of tags associated with the card.
 rendered_description: Resource; Link to rendered card description as HTML.*/
-}
+
