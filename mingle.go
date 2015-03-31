@@ -9,6 +9,7 @@ import (
 	"time"
 	"fmt"
 	"encoding/xml"
+	"bytes"
 )
 
 const (
@@ -24,11 +25,11 @@ func SignBasicAuth(req http.Request, username string, pass string) http.Request 
 	return req
 }
 
-func get(url string, sign RequestSigner) (io.ReadCloser, error) {
-	req, err := http.NewRequest("GET", url, nil)
+func doRequest(method string, url string, sign RequestSigner, body io.Reader) (*http.Response /*io.ReadCloser*/, error) {
+	req, err := http.NewRequest(method, url, body)
 	
 	if err != nil {
-		return nil, fmt.Errorf("Failed to construct HTTP GET for URL: %s\nCaused by: %s", url, err.Error())
+		return nil, fmt.Errorf("Failed to construct HTTP %s for URL: %s\nCaused by: %s", method, url, err.Error())
 	}
 
 	req.Header.Add(contentTypeHeader, "application/xml")
@@ -37,17 +38,17 @@ func get(url string, sign RequestSigner) (io.ReadCloser, error) {
 	newReq, err := sign(*req)
 	
 	if err != nil {
-		return nil, fmt.Errorf("Failed to sign HTTP GET request to URL: %s\nCaused by: %s", url, err.Error())
+		return nil, fmt.Errorf("Failed to sign HTTP %s request to URL: %s\nCaused by: %s", method, url, err.Error())
 	}
 	
 	client := &http.Client{}
 	resp, err := client.Do(&newReq)
 	
 	if err != nil {
-		return nil, fmt.Errorf("Failed HTTP GET request to URL: %s\nCaused by: %s", url, err.Error())
+		return nil, fmt.Errorf("Failed HTTP %s request to URL: %s\nCaused by: %s", method, url, err.Error())
 	}
 	
-	return resp.Body, nil
+	return resp, nil
 }
 
 func unmarshal(data []byte, resource interface{}) error {	
@@ -61,15 +62,15 @@ func unmarshal(data []byte, resource interface{}) error {
 	return nil
 }
 
-func getAndUnmarshal(url string, sign RequestSigner, resource interface{}) (error) {
-	body, err := get(url, sign)
+func doAndUnmarshal(method string, url string, sign RequestSigner, resource interface{}, body io.Reader) (error) {
+	response, err := doRequest(method, url, sign, body)
 	
 	if err != nil {
 		return err
 	}
 	
-	defer body.Close()
-	data, err := ioutil.ReadAll(body)
+	defer response.Body.Close()
+	data, err := ioutil.ReadAll(response.Body)
 	
 	return unmarshal(data, &resource)
 }
@@ -79,9 +80,47 @@ func GetCard(cardNumber int, baseURL string, sign RequestSigner) (Card, error){
 	
 	url := fmt.Sprintf("%s/cards/%d.xml", baseURL, cardNumber)
 	
-	err := getAndUnmarshal(url, sign, interface{}(&card))
+	err := doAndUnmarshal("GET", url, sign, interface{}(&card), nil)
 
 	return card, err
+}
+
+func UpdateCard(card Card, baseURL string, sign RequestSigner) error {
+	url := fmt.Sprintf("%s/cards/%d.xml", baseURL, card.Number)
+	
+	data, err := xml.Marshal(card)
+	
+	if err != nil {
+		myErr := fmt.Errorf("%T\n%s\n%#v\n", err, err, err)
+		return myErr
+	}
+	
+	body := bytes.NewBuffer(data)
+	
+	_, err = doRequest("PUT", url, sign, body)
+		
+	return err
+}
+
+func createCard(card Card, baseURL string, sign RequestSigner) (int, error) {
+	var cardNumber int
+	
+	url := fmt.Sprintf("%s/cards", baseURL)
+	
+	data, err := xml.Marshal(card)
+	
+	if err != nil {
+		myErr := fmt.Errorf("%T\n%s\n%#v\n", err, err, err)
+		return cardNumber, myErr
+	}
+		
+	body := bytes.NewBuffer(data)
+	
+	_, err = doRequest("POST", url, sign, body)
+	
+	// TODO parse cardNumber (from Location header in response?)
+	
+	return cardNumber, err
 }
 
 func Query(query string, baseURL string, sign RequestSigner) ([]map[string]string, error) {
@@ -89,9 +128,10 @@ func Query(query string, baseURL string, sign RequestSigner) ([]map[string]strin
 	
 	url := fmt.Sprintf("%s/cards/execute_mql.xml?mql=%s", baseURL, url.QueryEscape(query))
 	
-	body, err := get(url, sign)
+	response, err := doRequest("GET", url, sign, nil)
 
-	parser := xml.NewDecoder(body)
+	defer response.Body.Close()
+	parser := xml.NewDecoder(response.Body)
 	
 	var currentRecord map[string]string
 	for {
@@ -119,14 +159,11 @@ func Query(query string, baseURL string, sign RequestSigner) ([]map[string]strin
 	return results, err
 }
 
+
 /*
 
 func AddComment(comment string, cardNumber int, baseURL string, sign RequestSigner) error {
 	return nil
-}
-
-func createCard(card Card, baseURL string, sign RequestSigner) (int, error) {
-
 }
 
 */
