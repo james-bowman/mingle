@@ -109,6 +109,7 @@ func CreateCard(card Card, baseURL string, sign RequestSigner) (int, error) {
 	var cardNumber int
 	
 	url := fmt.Sprintf("%s/cards", baseURL)
+	log.Println(url)
 	
 	data, err := xml.Marshal(card)
 	
