@@ -100,16 +100,17 @@ func UpdateCard(card Card, baseURL string, sign RequestSigner) error {
 	
 	body := bytes.NewBuffer(data)
 	
-	_, err = doRequest("PUT", url, sign, body)
+	response, err := doRequest("PUT", url, sign, body)
+		
+	log.Printf("Response code: %s", response.StatusCode)
 		
 	return err
 }
 
-func CreateCard(card Card, baseURL string, sign RequestSigner) (int, error) {
-	var cardNumber int
+func CreateCard(card Card, baseURL string, sign RequestSigner) (card, error) {
+	var result card
 	
 	url := fmt.Sprintf("%s/cards.xml", baseURL)
-	log.Println(url)
 	
 	data, err := xml.Marshal(card)
 	
@@ -122,13 +123,17 @@ func CreateCard(card Card, baseURL string, sign RequestSigner) (int, error) {
 	
 	response, err := doRequest("POST", url, sign, body)
 	
-	// TODO parse cardNumber (from Location header in response?)
-	defer response.Body.Close()
-	responseBody, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return result, err
+	}
 	
-	log.Printf("Response: %d %s\nLocation: %s\n%s", response.StatusCode, response.Status, response.Header.Get("Location"), string(responseBody))
+	if response.StatusCode != 201 {
+		return result, fmt.Errorf("Unable to create card - Mingle returned a HTTP response of %s", response.Status)
+	}
 	
-	return cardNumber, err
+	err = doAndUnmarshal("GET", response.Header.Get("Location"), sign, interface{}(&result), nil)
+
+	return result, err	 
 }
 
 func Query(query string, baseURL string, sign RequestSigner) ([]map[string]string, error) {
