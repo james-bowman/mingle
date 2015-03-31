@@ -108,7 +108,7 @@ func UpdateCard(card Card, baseURL string, sign RequestSigner) error {
 func CreateCard(card Card, baseURL string, sign RequestSigner) (int, error) {
 	var cardNumber int
 	
-	url := fmt.Sprintf("%s/cards", baseURL)
+	url := fmt.Sprintf("%s/cards.xml", baseURL)
 	log.Println(url)
 	
 	data, err := xml.Marshal(card)
