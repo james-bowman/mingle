@@ -123,7 +123,7 @@ func CreateCard(card Card, baseURL string, sign RequestSigner) (int, error) {
 	defer response.Body.Close()
 	responseBody, err := ioutil.ReadAll(response.Body)
 	
-	log.Println(responseBody)
+	log.Printf("%s", string(responseBody))
 	
 	return cardNumber, err
 }
