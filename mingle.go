@@ -102,7 +102,7 @@ func UpdateCard(card Card, baseURL string, sign RequestSigner) error {
 	return err
 }
 
-func createCard(card Card, baseURL string, sign RequestSigner) (int, error) {
+func CreateCard(card Card, baseURL string, sign RequestSigner) (int, error) {
 	var cardNumber int
 	
 	url := fmt.Sprintf("%s/cards", baseURL)
