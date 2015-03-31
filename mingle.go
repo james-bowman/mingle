@@ -107,8 +107,8 @@ func UpdateCard(card Card, baseURL string, sign RequestSigner) error {
 	return err
 }
 
-func CreateCard(card Card, baseURL string, sign RequestSigner) (card, error) {
-	var result card
+func CreateCard(card Card, baseURL string, sign RequestSigner) (Card, error) {
+	var result Card
 	
 	url := fmt.Sprintf("%s/cards.xml", baseURL)
 	
@@ -116,7 +116,7 @@ func CreateCard(card Card, baseURL string, sign RequestSigner) (card, error) {
 	
 	if err != nil {
 		myErr := fmt.Errorf("%T\n%s\n%#v\n", err, err, err)
-		return cardNumber, myErr
+		return result, myErr
 	}
 		
 	body := bytes.NewBuffer(data)
