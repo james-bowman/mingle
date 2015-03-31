@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"encoding/xml"
 	"bytes"
+	"log"
 )
 
 const (
@@ -116,9 +117,13 @@ func CreateCard(card Card, baseURL string, sign RequestSigner) (int, error) {
 		
 	body := bytes.NewBuffer(data)
 	
-	_, err = doRequest("POST", url, sign, body)
+	response, err := doRequest("POST", url, sign, body)
 	
 	// TODO parse cardNumber (from Location header in response?)
+	defer response.Body.Close()
+	responseBody, err := ioutil.ReadAll(response.Body)
+	
+	log.Println(responseBody)
 	
 	return cardNumber, err
 }
