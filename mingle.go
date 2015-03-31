@@ -16,6 +16,7 @@ import (
 const (
 	contentTypeHeader = "Content-Type"
 	dateHeader = "Date"
+	acceptHeader = "Accept"
 )
 
 type RequestSigner func(http.Request) (http.Request, error) 
@@ -34,6 +35,7 @@ func doRequest(method string, url string, sign RequestSigner, body io.Reader) (*
 	}
 
 	req.Header.Add(contentTypeHeader, "application/xml")
+	req.Header.Add(acceptHeader, "application/xml")
 	req.Header.Add(dateHeader, time.Now().Format(http.TimeFormat))
 
 	newReq, err := sign(*req)
