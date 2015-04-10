@@ -14,7 +14,11 @@ type User struct {
 	Login string `xml:"login"`
 }
 
-type Property struct {
+type PropertyList struct {
+	Property []NameValue `xml:"property"`
+}
+
+type NameValue struct {
 	Name string `xml:"name"`
 	Value string `xml:"value"`
 }
@@ -32,7 +36,7 @@ type Card struct {
 	ModifiedOn string `xml:"modified_on"`
 	ModifiedBy User `xml:"modified_by"`
 	CreatedBy User `xml:"created_by"`
-	Properties []Property `xml:"properties"`
+	Properties PropertyList `xml:"properties"`
 	Tags string `xml:"tags"`
 }
 	
