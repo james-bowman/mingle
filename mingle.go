@@ -119,15 +119,13 @@ func UpdateCard(card Card, baseURL string, sign RequestSigner) error {
 }
 
 func CreateCard(card Card, baseURL string, sign RequestSigner) (*Card, error) {
-	var result Card
-
 	url := fmt.Sprintf("%s/cards.xml", baseURL)
 
 	data, err := xml.Marshal(card)
 
 	if err != nil {
 		myErr := fmt.Errorf("%T\n%s\n%#v\n", err, err, err)
-		return result, myErr
+		return nil, myErr
 	}
 
 	body := bytes.NewBuffer(data)
@@ -135,14 +133,14 @@ func CreateCard(card Card, baseURL string, sign RequestSigner) (*Card, error) {
 	response, err := doRequest("POST", url, sign, body)
 
 	if err != nil {
-		return result, err
+		return nil, err
 	}
 
 	if response.StatusCode != 201 {
-		return result, fmt.Errorf("Unable to create card - Mingle returned a HTTP response of %s", response.Status)
+		return nil, fmt.Errorf("Unable to create card - Mingle returned a HTTP response of %s", response.Status)
 	}
 
-	result, err = getCard(response.Header.Get("Location"), sign)
+	result, err := getCard(response.Header.Get("Location"), sign)
 
 	return result, err
 }
