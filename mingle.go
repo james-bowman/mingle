@@ -85,6 +85,9 @@ func getCard(url string, sign RequestSigner) (*Card, error) {
 	defer response.Body.Close()
 	data, err := ioutil.ReadAll(response.Body)
 
+//	fmt.Printf("%s", data)
+//	return nil, fmt.Errorf("%s", data)
+
 	err = unmarshal(data, interface{}(&card))
 
 	return &card, err

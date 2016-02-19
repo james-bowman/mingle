@@ -31,7 +31,7 @@ type Card struct {
 	Id string `xml:"id"`
 	Number string `xml:"number"`
 	Vesion int `xml:"version"`
-	ProjectCardRank int `xml:"project_card_rank"`
+	ProjectCardRank string `xml:"project_card_rank"`
 	CreatedOn string `xml:"created_on"`
 	ModifiedOn string `xml:"modified_on"`
 	ModifiedBy User `xml:"modified_by"`
